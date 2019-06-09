@@ -65,31 +65,6 @@ internal constructor(context: Context) {
 
     labeler = FirebaseVision.getInstance().getOnDeviceAutoMLImageLabeler(options)
 
-    Toast.makeText(
-            context,
-            "Begin downloading the remote AutoML model.",
-            Toast.LENGTH_SHORT
-    ).show()
-
-    // Track the remote model download progress.
-    FirebaseModelManager.getInstance()
-            .downloadRemoteModelIfNeeded(remoteModel)
-            .addOnCompleteListener { task ->
-              if (task.isSuccessful) {
-                Toast.makeText(
-                        context,
-                        "Download remote AutoML model success.",
-                        Toast.LENGTH_SHORT
-                ).show()
-                remoteModelDownloadSucceeded = true
-              } else {
-                val downloadingError = "Error downloading remote model."
-                Log.e(TAG, downloadingError, task.exception)
-                Toast.makeText(context, downloadingError, Toast.LENGTH_SHORT).show()
-              }
-            }
-
-    Log.d(TAG, "Created a Firebase ML Kit AutoML Image Labeler.")
   }
 
   /** Classifies a frame from the preview stream.  */
@@ -118,10 +93,8 @@ internal constructor(context: Context) {
       // addition, since model download failures can be transient, and model download can also be
       // triggered in the background during inference, it is possible that a remote model is used
       // even if the first download fails.
-      var textToShow = "Source: " +
-              (if (this.remoteModelDownloadSucceeded) "Remote" else "Local") +
-              " model\n"
-      textToShow += "Latency: " + java.lang.Long.toString(endTime - startTime) + "ms\n"
+
+      var textToShow = "Latency: " + java.lang.Long.toString(endTime - startTime) + "ms\n"
       textToShow += if (labelProbList.isNullOrEmpty())
         "No Result"
       else
